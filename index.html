@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consumindo uma API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: blueviolet;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .logo {
+            width: 150px;
+            margin-bottom: 10px;
+        }
+        .center-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #f1f1f1;
+            width: 70vw;
+            height: 60vh;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+        .center-card .image-box {
+            width: 80%;
+            height: 150px;
+            border: 2px dotted orange;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .center-card .image-box img {
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+        .center-card input {
+            margin: 20px 0;
+            width: 80%;
+            border: 2px solid orange;
+            padding: 5px;
+            border-radius: 5px
+        }
+        #generate-button {
+            background-color: orange;
+            border: none;
+            padding: 5px 15px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+        }
+        #generate-button:hover {
+            box-shadow: 0 0 1px rgba(0, 0, 0, 0.6);
+        }
+    </style>
+    <link rel="stylesheet" href="loading.css">
+</head>
+<body>
+
+    <img class="logo" src="https://programe.io/img/logo/logo.png" alt="Logo Programe.io">
+
+    <form id="generate-form" class="center-card" action="#">
+
+        <div class="image-box">
+            <img id="generated-image" src="" alt="">
+            <div class="lds-grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+        </div>
+
+        <input id="prompt-input" type="text" placeholder="Descreva a Imagem" required/>
+
+        <input id="generate-button" type="submit" value="Gerar Imagem">
+
+    </form>
+
+    <script>
+
+        const apiKey = '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';
+        const baseUrl = 'https://api.openai.com/v1/';
+        const generateForm = document.querySelector('#generate-form');
+        const promptInput = document.querySelector('#prompt-input');
+        const generatedImage = document.querySelector('#generated-image');
+        const loading = document.querySelector('.lds-grid');
+
+        generateForm.addEventListener('submit', async () => {
+
+            generatedImage.style.display = 'none'; // esconde a IMAGEM
+            loading.style.display = 'block'; // exibe o CARREGAMENTO
+            
+            console.log('Carregando... ⌛');
+
+            // informacoes solicitadas pela API
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                },
+                body: JSON.stringify(
+                    {
+                        prompt: promptInput.value, // valor informado no input
+                        n: 1, // numero de images geradas
+                        size: '512x512', // resolução 
+                    }
+                )
+            }
+
+            try {
+
+                const request = await fetch(`${baseUrl}images/generations`, options);
+                const response = await request.json();
+
+                generatedImage.src = response.data[0].url; // adiciona a imagem gereda a tag img
+
+                generatedImage.style.display = 'block'; // exibe a IMAGEM 
+                loading.style.display = 'none'; // escone o CARREGAMENTO
+
+                console.log('Imagem gerada! 😃');
+                
+            } catch (error) {
+                console.error(`${error} 😥`);
+            }
+
+        });
+
+    </script>
+    
+</body>
+</html>
